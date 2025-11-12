@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "127710856158",
+    "project_id": "fwiseq",
+    "storage_bucket": "fwiseq.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127710856158:android:063337a0a547059e44934f",
+        "android_client_info": {
+          "package_name": "com.titus.wiceq.wiceq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCToJ-ZTSsYRNJEJRJrYVW30SScAT1QVJc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
