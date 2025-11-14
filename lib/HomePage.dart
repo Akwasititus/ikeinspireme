@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-
   late AnimationController _fabController;
   final ScreenshotController _screenshotController = ScreenshotController();
 
@@ -40,34 +39,45 @@ class _HomePageState extends State<HomePage>
     try {
       EasyLoading.show(status: 'Preparing image...');
 
-      // Capture the screenshot
-      final image = await _screenshotController.capture();
+      // Add a small delay to ensure UI is ready
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final image = await _screenshotController.capture(
+        pixelRatio: 2.0, // Higher quality
+        delay: const Duration(milliseconds: 200),
+      );
 
       if (image == null) {
         EasyLoading.showError('Failed to capture image');
         return;
       }
 
-      // Save to temporary directory
       final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/quote_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imagePath =
+          '${directory.path}/quote_${DateTime.now().millisecondsSinceEpoch}.png';
       final imageFile = File(imagePath);
       await imageFile.writeAsBytes(image);
 
       EasyLoading.dismiss();
 
       // Share the image
-      ShareIt.file(
+      await ShareIt.file(
         path: imagePath,
         type: ShareItFileType.image,
         androidSheetTitle: 'Share Quote Card',
       );
 
+      // Clean up after sharing
+      await Future.delayed(const Duration(seconds: 2));
+      if (await imageFile.exists()) {
+        await imageFile.delete();
+      }
     } catch (e) {
+      EasyLoading.dismiss();
       EasyLoading.showError('Failed to share: $e');
+      print('Share error: $e');
     }
   }
-
 
   static const appLink =
       '\n\n\n  Please download the app for more quotes like this \n'
@@ -280,10 +290,10 @@ class _HomePageState extends State<HomePage>
                   child: Container(
                     padding: const EdgeInsets.all(40),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha:  0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),
@@ -296,8 +306,10 @@ class _HomePageState extends State<HomePage>
               }
 
               return SafeArea(
-                child: Swiper(
+                child: PageView.builder(
                   itemCount: quoteProvider.quotes.length,
+                  scrollDirection: Axis.vertical,
+                  controller: PageController(viewportFraction: 0.8),
                   itemBuilder: (context, index) {
                     final quote = quoteProvider.quotes[index];
                     final quoteText = quote.text;
@@ -312,218 +324,403 @@ class _HomePageState extends State<HomePage>
                     }
 
                     return Center(
-                      child: Screenshot(
-                        controller: _screenshotController,
-                        child: Container(
-                          width: screenWidth * 0.9,
-                          height: screenHeight * 0.7,
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 30,
-                                offset: const Offset(0, 15),
-                                spreadRadius: 5,
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: Stack(
-                              children: [
-                                // Decorative top corner
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: Container(
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.deepPurple.withOpacity(0.5),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                      borderRadius: const BorderRadius.only(
-                                        bottomLeft: Radius.circular(100),
-                                      ),
+                      child: Container(
+                        width: screenWidth * 0.9,
+                        height: screenHeight * 0.7,
+                        margin: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Stack(
+                            children: [
+                              // Your existing card content...
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.deepPurple.withOpacity(0.5),
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(100),
                                     ),
                                   ),
                                 ),
-                                // Main content
-                                Padding(
-                                  padding: const EdgeInsets.all(30),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // Quote icon
+                              ),
 
-                                      const CircleAvatar(
-                                        radius: 35, // adjust the size as needed
-                                        backgroundImage: AssetImage(
-                                            'asset/ps-card-image.jpeg'),
-                                      ),
-                                      // Quote text
-                                      const SizedBox(height: 20),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Text(
-                                            quoteText,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w300,
-                                              color: Colors.white,
-                                              height: 1.6,
-                                              letterSpacing: 0.1,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 25),
-                                      // Divider
-                                      Container(
-                                        width: 60,
-                                        height: 3,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.deepPurple.shade400,
-                                              Colors.purple.shade300,
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      // Author
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 25,
-                                          vertical: 12,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.deepPurple.shade50,
-                                              Colors.purple.shade50,
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(25),
-                                          border: Border.all(
-                                            color: Colors.deepPurple.shade100,
-                                            width: 1.5,
-                                          ),
-                                        ),
+                              Padding(
+                                padding: const EdgeInsets.all(30),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const CircleAvatar(
+                                      radius: 35,
+                                      backgroundImage: AssetImage('asset/ps-card-image.jpeg'),
+                                    ),
+                                    const SizedBox(height: 20),
+
+                                    Expanded(
+                                      child: SingleChildScrollView(
                                         child: Text(
-                                          '— $author',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.deepPurple.shade700,
-                                            fontStyle: FontStyle.italic,
-                                            letterSpacing: 0.5,
+                                          quoteText,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w300,
+                                            color: Colors.white,
+                                            height: 1.6,
+                                            letterSpacing: 0.1,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 30),
-                                      // Action buttons
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          _buildModernButton(
-                                            icon: Icons.share_rounded,
-                                            label: 'Share',
-                                            gradient: const LinearGradient(
-                                              colors: [
-                                                Colors.blue,
-                                                Colors.blueAccent
-                                              ],
-                                            ),
-                                            onPressed: share,
-                                          ),
-                                          // _buildModernButton(
-                                          //   icon: Icons.image_rounded,
-                                          //   label: 'Share Card',
-                                          //   gradient: const LinearGradient(
-                                          //     colors: [
-                                          //       Colors.purple,
-                                          //       Colors.deepPurple
-                                          //     ],
-                                          //   ),
-                                          //   onPressed: _shareCardAsImage,
-                                          // ),
-                                          _buildModernButton(
-                                            icon: Icons.content_copy_rounded,
-                                            label: 'Copy',
-                                            gradient: const LinearGradient(
-                                              colors: [
-                                                Colors.green,
-                                                Colors.lightGreen
-                                              ],
-                                            ),
-                                            onPressed: () =>
-                                                _copyQuote(quoteText),
-                                          ),
-                                          _buildModernButton(
-                                            icon: quoteProvider.isFavorite(quote)
-                                                ? Icons.favorite_rounded
-                                                : Icons.favorite_border_rounded,
-                                            label: quoteProvider.isFavorite(quote)
-                                                ? 'Saved'
-                                                : 'Favorite',
-                                            gradient: LinearGradient(
-                                              colors:
-                                                  quoteProvider.isFavorite(quote)
-                                                      ? [Colors.red, Colors.pink]
-                                                      : [
-                                                          Colors.grey.shade400,
-                                                          Colors.grey.shade300
-                                                        ],
-                                            ),
-                                            onPressed: () {
-                                              if (quoteProvider
-                                                  .isFavorite(quote)) {
-                                                quoteProvider
-                                                    .removeFavorite(quote);
-                                              } else {
-                                                quoteProvider.addFavorite(quote);
-                                              }
-                                            },
-                                          ),
-                                        ],
+                                    ),
+
+                                    const SizedBox(height: 25),
+
+                                    Container(
+                                      width: 60,
+                                      height: 3,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.deepPurple.shade400,
+                                            Colors.purple.shade300,
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 25,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.deepPurple.shade50,
+                                            Colors.purple.shade50,
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(25),
+                                        border: Border.all(
+                                          color: Colors.deepPurple.shade100,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '— $author',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.deepPurple.shade700,
+                                          fontStyle: FontStyle.italic,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 30),
+
+                                    // Action buttons
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        _buildModernButton(
+                                          icon: Icons.share_rounded,
+                                          label: 'Share',
+                                          gradient: const LinearGradient(colors: [Colors.blue, Colors.blueAccent]),
+                                          onPressed: share,
+                                        ),
+                                        _buildModernButton(
+                                          icon: Icons.content_copy_rounded,
+                                          label: 'Copy',
+                                          gradient: const LinearGradient(colors: [Colors.green, Colors.lightGreen]),
+                                          onPressed: () => _copyQuote(quoteText),
+                                        ),
+                                        _buildModernButton(
+                                          icon: quoteProvider.isFavorite(quote) ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                          label: quoteProvider.isFavorite(quote) ? 'Saved' : 'Favorite',
+                                          gradient: LinearGradient(
+                                            colors: quoteProvider.isFavorite(quote)
+                                                ? [Colors.red, Colors.pink]
+                                                : [Colors.grey.shade400, Colors.grey.shade300],
+                                          ),
+                                          onPressed: () {
+                                            if (quoteProvider.isFavorite(quote)) {
+                                              quoteProvider.removeFavorite(quote);
+                                            } else {
+                                              quoteProvider.addFavorite(quote);
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     );
                   },
-                  scrollDirection: Axis.vertical,
-                  loop: true,
-                  autoplay: true,
-                  autoplayDelay: 60000,
-                  duration: 800,
-                  curve: Curves.easeInOut,
-                  scale: 0.9,
                 ),
               );
+
+              // return SafeArea(
+              //   child: Swiper(
+              //     itemCount: quoteProvider.quotes.length,
+              //     itemBuilder: (context, index) {
+              //       final quote = quoteProvider.quotes[index];
+              //       final quoteText = quote.text;
+              //       final author = quote.author;
+              //
+              //       void share() {
+              //         final shareText = '"$quoteText" - $author $appLink';
+              //         ShareIt.text(
+              //           content: shareText,
+              //           androidSheetTitle: 'Share Quote',
+              //         );
+              //       }
+              //
+              //       return Center(
+              //         child: Screenshot(
+              //           controller: _screenshotController,
+              //           child: Container(
+              //             width: screenWidth * 0.9,
+              //             height: screenHeight * 0.7,
+              //             margin: const EdgeInsets.symmetric(vertical: 20),
+              //             decoration: BoxDecoration(
+              //               color: Colors.white.withValues(alpha: 0.45),
+              //               borderRadius: BorderRadius.circular(30),
+              //               boxShadow: [
+              //                 BoxShadow(
+              //                   color: Colors.black.withOpacity(0.3),
+              //                   blurRadius: 30,
+              //                   offset: const Offset(0, 15),
+              //                   spreadRadius: 5,
+              //                 ),
+              //               ],
+              //             ),
+              //             child: ClipRRect(
+              //               borderRadius: BorderRadius.circular(30),
+              //               child: Stack(
+              //                 children: [
+              //                   // Decorative top corner
+              //                   Positioned(
+              //                     top: 0,
+              //                     right: 0,
+              //                     child: Container(
+              //                       width: 100,
+              //                       height: 100,
+              //                       decoration: BoxDecoration(
+              //                         gradient: LinearGradient(
+              //                           colors: [
+              //                             Colors.deepPurple.withOpacity(0.5),
+              //                             Colors.transparent,
+              //                           ],
+              //                         ),
+              //                         borderRadius: const BorderRadius.only(
+              //                           bottomLeft: Radius.circular(100),
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   // Main content
+              //                   Padding(
+              //                     padding: const EdgeInsets.all(30),
+              //                     child: Column(
+              //                       mainAxisAlignment: MainAxisAlignment.center,
+              //                       children: [
+              //                         // Quote icon
+              //
+              //                         const CircleAvatar(
+              //                           radius: 35, // adjust the size as needed
+              //                           backgroundImage: AssetImage(
+              //                               'asset/ps-card-image.jpeg'),
+              //                         ),
+              //                         // Quote text
+              //                         const SizedBox(height: 20),
+              //                         Expanded(
+              //                           child: SingleChildScrollView(
+              //                             child: Text(
+              //                               quoteText,
+              //                               textAlign: TextAlign.center,
+              //                               style: const TextStyle(
+              //                                 fontSize: 16,
+              //                                 fontWeight: FontWeight.w300,
+              //                                 color: Colors.white,
+              //                                 height: 1.6,
+              //                                 letterSpacing: 0.1,
+              //                               ),
+              //                             ),
+              //                           ),
+              //                         ),
+              //                         const SizedBox(height: 25),
+              //                         // Divider
+              //                         Container(
+              //                           width: 60,
+              //                           height: 3,
+              //                           decoration: BoxDecoration(
+              //                             gradient: LinearGradient(
+              //                               colors: [
+              //                                 Colors.deepPurple.shade400,
+              //                                 Colors.purple.shade300,
+              //                               ],
+              //                             ),
+              //                             borderRadius:
+              //                                 BorderRadius.circular(2),
+              //                           ),
+              //                         ),
+              //                         const SizedBox(height: 20),
+              //                         // Author
+              //                         Container(
+              //                           padding: const EdgeInsets.symmetric(
+              //                             horizontal: 25,
+              //                             vertical: 12,
+              //                           ),
+              //                           decoration: BoxDecoration(
+              //                             gradient: LinearGradient(
+              //                               colors: [
+              //                                 Colors.deepPurple.shade50,
+              //                                 Colors.purple.shade50,
+              //                               ],
+              //                             ),
+              //                             borderRadius:
+              //                                 BorderRadius.circular(25),
+              //                             border: Border.all(
+              //                               color: Colors.deepPurple.shade100,
+              //                               width: 1.5,
+              //                             ),
+              //                           ),
+              //                           child: Text(
+              //                             '— $author',
+              //                             style: TextStyle(
+              //                               fontSize: 12,
+              //                               fontWeight: FontWeight.w700,
+              //                               color: Colors.deepPurple.shade700,
+              //                               fontStyle: FontStyle.italic,
+              //                               letterSpacing: 0.5,
+              //                             ),
+              //                           ),
+              //                         ),
+              //                         const SizedBox(height: 30),
+              //                         // Action buttons
+              //                         Row(
+              //                           mainAxisAlignment:
+              //                               MainAxisAlignment.spaceEvenly,
+              //                           children: [
+              //                             _buildModernButton(
+              //                               icon: Icons.share_rounded,
+              //                               label: 'Share',
+              //                               gradient: const LinearGradient(
+              //                                 colors: [
+              //                                   Colors.blue,
+              //                                   Colors.blueAccent
+              //                                 ],
+              //                               ),
+              //                               onPressed: share,
+              //                             ),
+              //                             _buildModernButton(
+              //                               icon: Icons.image_rounded,
+              //                               label: 'Share Card',
+              //                               gradient: const LinearGradient(
+              //                                 colors: [
+              //                                   Colors.purple,
+              //                                   Colors.deepPurple
+              //                                 ],
+              //                               ),
+              //                               onPressed: _shareCardAsImage,
+              //                             ),
+              //                             _buildModernButton(
+              //                               icon: Icons.content_copy_rounded,
+              //                               label: 'Copy',
+              //                               gradient: const LinearGradient(
+              //                                 colors: [
+              //                                   Colors.green,
+              //                                   Colors.lightGreen
+              //                                 ],
+              //                               ),
+              //                               onPressed: () =>
+              //                                   _copyQuote(quoteText),
+              //                             ),
+              //                             _buildModernButton(
+              //                               icon: quoteProvider
+              //                                       .isFavorite(quote)
+              //                                   ? Icons.favorite_rounded
+              //                                   : Icons.favorite_border_rounded,
+              //                               label:
+              //                                   quoteProvider.isFavorite(quote)
+              //                                       ? 'Saved'
+              //                                       : 'Favorite',
+              //                               gradient: LinearGradient(
+              //                                 colors: quoteProvider
+              //                                         .isFavorite(quote)
+              //                                     ? [Colors.red, Colors.pink]
+              //                                     : [
+              //                                         Colors.grey.shade400,
+              //                                         Colors.grey.shade300
+              //                                       ],
+              //                               ),
+              //                               onPressed: () {
+              //                                 if (quoteProvider
+              //                                     .isFavorite(quote)) {
+              //                                   quoteProvider
+              //                                       .removeFavorite(quote);
+              //                                 } else {
+              //                                   quoteProvider
+              //                                       .addFavorite(quote);
+              //                                 }
+              //                               },
+              //                             ),
+              //                           ],
+              //                         ),
+              //                       ],
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //     scrollDirection: Axis.vertical,
+              //     loop: true,
+              //     autoplay: true,
+              //     autoplayDelay: 60000,
+              //     duration: 800,
+              //     curve: Curves.easeInOut,
+              //     scale: 0.9,
+              //   ),
+              // );
             },
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildModernButton({
     required IconData icon,
