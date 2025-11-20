@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         child: ConnectionNotifier(
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Wise Christian Quotes',
+            title: 'IKEINSPIREME',
             theme: ThemeData(
               fontFamily: "PoetsenOne-Regular",
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

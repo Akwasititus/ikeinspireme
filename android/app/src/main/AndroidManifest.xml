@@ -8,7 +8,7 @@
 
 
     <application
-        android:label="Wise Christian Quotes"
+        android:label="Ike-Inspire-Me"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
