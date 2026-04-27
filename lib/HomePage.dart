@@ -95,10 +95,12 @@ class _HomePageState extends State<HomePage>
   }
 
   void shareAppLink() {
-    ShareIt.link(
-      androidSheetTitle:
-      'Looking for an inspirational quote? Download this app now',
-      url: appLink,
+    const String playStoreUrl =
+        'https://play.google.com/store/apps/details?id=com.titus.wiceq.wiceq';
+    ShareIt.text(
+      content:
+      '✨ Looking for daily inspiration? Download ikeinspireme now!\n\n$playStoreUrl',
+      androidSheetTitle: 'Share ikeinspireme',
     );
   }
 
@@ -294,116 +296,111 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: Container(
-        color: _darkBrown,
-        child: ListView(
-          padding: EdgeInsets.zero,
+  // ── 2. About Us bottom sheet ─────────────────────────────────────────
+  void _showAboutUs(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1208),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: const Color(0xFFD4A853).withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
+            // Gold handle
             Container(
-              height: 230,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("asset/bg-wallpepper.jpeg"),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD4A853).withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFD4A853), width: 2),
+                image: const DecorationImage(
+                  image: AssetImage('asset/ps-card-image.jpeg'),
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: 0.65),
-                      Colors.black.withValues(alpha: 0.4),
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: _gold, width: 2),
-                        image: const DecorationImage(
-                          image: AssetImage('asset/ps-card-image.jpeg'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "ikeinspireme",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "Daily Inspiration",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _gold.withValues(alpha: 0.9),
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
-
             const SizedBox(height: 16),
 
-            _buildDrawerItem(
-              icon: Icons.favorite_rounded,
-              label: 'My Favorites',
-              accent: Colors.redAccent,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const LikedQuotesPage()));
-              },
+            const Text(
+              'ikeinspireme',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 2,
+              ),
             ),
-            _buildDrawerItem(
-              icon: Icons.share_rounded,
-              label: 'Share App',
-              accent: _gold,
-              onTap: () {
-                Navigator.pop(context);
-                shareAppLink();
-              },
-            ),
-
-            const SizedBox(height: 30),
-
-            // Gold divider
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Divider(
-                  color: _gold.withValues(alpha: 0.2), thickness: 1),
+            const SizedBox(height: 6),
+            const Text(
+              'by Pastor Isaac Amankwaah Junior',
+              style: TextStyle(
+                color: Color(0xFFD4A853),
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+                letterSpacing: 1,
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                '"Swipe up to receive\nyour daily inspiration"',
+            Divider(
+              color: const Color(0xFFD4A853).withValues(alpha: 0.2),
+              thickness: 1,
+            ),
+
+            const SizedBox(height: 16),
+
+            Text(
+              '"ikeinspireme is a daily devotional quote app curated by '
+                  'Pastor Isaac Amankwaah Junior to encourage, uplift and inspire people '
+                  'in their everyday walk with God."',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.75),
+                fontSize: 13.5,
+                height: 1.8,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD4A853).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(0xFFD4A853).withValues(alpha: 0.3),
+                ),
+              ),
+              child: const Text(
+                'Version 1.0.0',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: Color(0xFFD4A853),
                   fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  height: 1.7,
+                  letterSpacing: 1,
                 ),
               ),
             ),
@@ -413,45 +410,295 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+// ── 3. The full rebuilt drawer ────────────────────────────────────────
+  Widget _buildDrawer() {
+    const Color gold = Color(0xFFD4A853);
+    const Color darkBrown = Color(0xFF1C1208);
+
+    return Drawer(
+      backgroundColor: darkBrown,
+      child: Column(
+        children: [
+          // ── Header ──────────────────────────────────────────────────
+          Stack(
+            children: [
+              // Wallpaper bg
+              Container(
+                height: 240,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("asset/bg-wallpepper.jpeg"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              // Dark scrim
+              Container(
+                height: 240,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withValues(alpha: 0.75),
+                      Colors.black.withValues(alpha: 0.35),
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+              ),
+              // Content
+              Positioned(
+                bottom: 24,
+                left: 24,
+                right: 24,
+                child: Row(
+                  children: [
+                    // Avatar
+                    Container(
+                      padding: const EdgeInsets.all(2.5),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [gold, Color(0xFFFAD07A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 28,
+                        backgroundImage:
+                        AssetImage('asset/ps-card-image.jpeg'),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'ikeinspireme',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4CAF50),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Daily Inspiration',
+                              style: TextStyle(
+                                color: gold.withValues(alpha: 0.9),
+                                fontSize: 12,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // ── Menu items ───────────────────────────────────────────────
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              children: [
+                const SizedBox(height: 8),
+
+                // Section label
+                _drawerSectionLabel('LIBRARY'),
+
+                _buildDrawerItem(
+                  icon: Icons.favorite_rounded,
+                  label: 'My Favorites',
+                  subtitle: 'Quotes you\'ve liked',
+                  accent: Colors.redAccent,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const LikedQuotesPage()));
+                  },
+                ),
+
+                const SizedBox(height: 8),
+                _drawerSectionLabel('CONNECT'),
+
+                _buildDrawerItem(
+                  icon: Icons.share_rounded,
+                  label: 'Share App',
+                  subtitle: 'Spread the inspiration',
+                  accent: gold,
+                  // ✅ Fixed: calls the corrected shareAppLink()
+                  onTap: () {
+                    Navigator.pop(context);
+                    shareAppLink();
+                  },
+                ),
+
+                // _buildDrawerItem(
+                //   icon: Icons.rate_review_rounded,
+                //   label: 'Rate Us',
+                //   subtitle: 'Love the app? Let us know',
+                //   accent: const Color(0xFF4A9EFF),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     // Opens Play Store listing
+                //     ShareIt.link(
+                //       url:
+                //       'https://play.google.com/store/apps/details?id=com.titus.wiceq.wiceq',
+                //       androidSheetTitle: 'Rate ikeinspireme',
+                //     );
+                //   },
+                // ),
+
+                const SizedBox(height: 8),
+                _drawerSectionLabel('INFO'),
+
+                _buildDrawerItem(
+                  icon: Icons.info_outline_rounded,
+                  label: 'About Us',
+                  subtitle: 'The story behind the app',
+                  accent: const Color(0xFFB388FF),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showAboutUs(context);
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Gold divider
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Divider(
+                    color: gold.withValues(alpha: 0.15),
+                    thickness: 1,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Footer quote
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    '"Swipe up to receive\nyour daily inspiration"',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      height: 1.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+// ── Section label helper ─────────────────────────────────────────────
+  Widget _drawerSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 6),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: const Color(0xFFD4A853).withValues(alpha: 0.5),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 2.5,
+        ),
+      ),
+    );
+  }
+
+// ── Drawer item ──────────────────────────────────────────────────────
   Widget _buildDrawerItem({
     required IconData icon,
     required String label,
+    required String subtitle,
     required Color accent,
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       child: Material(
         color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
+          splashColor: accent.withValues(alpha: 0.1),
+          highlightColor: accent.withValues(alpha: 0.05),
           onTap: onTap,
           child: Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
+                // Icon container
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    color: accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: accent.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
-                  child: Icon(icon, color: accent, size: 18),
+                  child: Icon(icon, color: accent, size: 20),
                 ),
                 const SizedBox(width: 14),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                // Label + subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.35),
+                          fontSize: 11,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const Spacer(),
-                Icon(Icons.chevron_right_rounded,
-                    color: Colors.white.withValues(alpha: 0.3), size: 18),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  size: 18,
+                ),
               ],
             ),
           ),
@@ -606,9 +853,9 @@ class _QuoteCardState extends State<_QuoteCard>
                             // Avatar with gold ring
                             Container(
                               padding: const EdgeInsets.all(2.5),
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [_gold, Color(0xFFFAD07A)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
